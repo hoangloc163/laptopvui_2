@@ -1,0 +1,41 @@
+# =====================================================================
+# .gitignore cho dự án Laptop Vui (PHP backend + Expo mobile app)
+# =====================================================================
+
+# ---------- Node / Expo ----------
+node_modules/
+.expo/
+.expo-shared/
+dist/
+web-build/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ---------- PHP / Composer ----------
+vendor/
+composer.phar
+
+# ---------- IDE / Editor ----------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ---------- Hệ điều hành ----------
+.DS_Store
+Thumbs.db
+__MACOSX/
+desktop.ini
+
+# ---------- Env / secrets ----------
+.env
+.env.local
+.env.*.local
+
+# ---------- Runtime data (không commit) ----------
+# LƯU Ý: Cố ý KHÔNG ignore backend/data/demo.sqlite để repo có sẵn dữ liệu
+# mẫu cho demo. Nếu muốn giữ DB sạch, có thể thêm dòng dưới:
+# backend/data/demo.sqlite

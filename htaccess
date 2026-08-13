@@ -1,0 +1,37 @@
+# =====================================================================
+# .htaccess cho backend Laptop Vui
+# - Chuyển mọi request KHÔNG phải file/thư mục có thật về index.php
+#   (thay thế vai trò của dev-router.php khi chạy Apache production).
+# - Cấm truy cập trực tiếp file .sqlite và các file cấu hình nhạy cảm.
+# =====================================================================
+
+RewriteEngine On
+
+# Nếu request khớp file hoặc thư mục có thật (ví dụ /upload/xxx.jpg,
+# /public/css/style.css) thì phục vụ trực tiếp, không rewrite.
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Còn lại đưa hết về index.php để router của app xử lý.
+RewriteRule ^ index.php [QSA,L]
+
+# ---------------- Chặn truy cập file nhạy cảm ----------------
+<FilesMatch "\.(sqlite|sqlite3|db|env|log)$">
+    Require all denied
+</FilesMatch>
+
+<Files "config.php">
+    Require all denied
+</Files>
+
+<Files "dev-router.php">
+    Require all denied
+</Files>
+
+# ---------------- Cache tĩnh nhẹ cho ảnh & css ----------------
+<IfModule mod_headers.c>
+    <FilesMatch "\.(jpg|jpeg|png|gif|webp|svg|css|js|ico)$">
+        Header set Cache-Control "public, max-age=86400"
+    </FilesMatch>
+</IfModule>
