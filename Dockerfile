@@ -5,13 +5,20 @@
 FROM php:8.2-apache
 
 # ---------- Cài extension cần thiết ----------
+# Extensions:
 # - pdo_sqlite: kết nối SQLite (mặc định của app khi DB_DRIVER = "sqlite")
 # - pdo_mysql:  sẵn sàng khi bạn đổi DB_DRIVER sang "mysql"
 # - mbstring:   BẮT BUỘC vì code có dùng mb_strlen() (nếu thiếu, /register
 #                sẽ crash với HTTP 500)
-# - libonig-dev: dependency của mbstring
+#
+# Build dependencies (image php:apache KHÔNG có sẵn):
+# - libsqlite3-dev: headers để biên dịch pdo_sqlite
+# - libonig-dev:    dependency của mbstring
+# - pkg-config:     configure script dùng để tìm thư viện sqlite
 RUN apt-get update && apt-get install -y --no-install-recommends \
         libonig-dev \
+        libsqlite3-dev \
+        pkg-config \
     && docker-php-ext-install pdo pdo_sqlite pdo_mysql mbstring \
     && a2enmod rewrite headers \
     && rm -rf /var/lib/apt/lists/*
