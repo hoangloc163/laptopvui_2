@@ -5,30 +5,29 @@
 FROM php:8.2-apache
 
 # ---------- Cài extension cần thiết ----------
-# Extensions:
+# Extensions bổ sung (mbstring đã có sẵn trong image php:8.2-apache):
 # - pdo_sqlite: kết nối SQLite (mặc định của app khi DB_DRIVER = "sqlite")
 # - pdo_mysql:  sẵn sàng khi bạn đổi DB_DRIVER sang "mysql"
-# - mbstring:   BẮT BUỘC vì code có dùng mb_strlen() (nếu thiếu, /register
-#                sẽ crash với HTTP 500)
 #
-# Build dependencies (image php:apache KHÔNG có sẵn):
+# Build dependencies:
 # - libsqlite3-dev: headers để biên dịch pdo_sqlite
-# - libonig-dev:    dependency của mbstring
 # - pkg-config:     configure script dùng để tìm thư viện sqlite
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        libonig-dev \
         libsqlite3-dev \
         pkg-config \
-    && docker-php-ext-install pdo pdo_sqlite pdo_mysql mbstring \
+    && docker-php-ext-install pdo pdo_sqlite pdo_mysql \
     && a2enmod rewrite headers \
     && rm -rf /var/lib/apt/lists/*
 
 # ---------- Copy source ----------
 COPY . /var/www/html/
 
-# ---------- Quyền ghi cho SQLite và thư mục upload ----------
-# Apache chạy user www-data; cần quyền ghi để tạo demo.sqlite và upload ảnh.
-RUN chown -R www-data:www-data /var/www/html/data /var/www/html/upload \
+# ---------- Tạo thư mục runtime + cấp quyền ghi ----------
+# Dùng mkdir -p để build không fail nếu repo thiếu thư mục data/ hoặc upload/
+# (Git bỏ qua thư mục rỗng, nên các folder này có thể vắng mặt sau khi push
+# repo mới). App tự tạo demo.sqlite khi lần đầu chạy nếu file chưa có.
+RUN mkdir -p /var/www/html/data /var/www/html/upload \
+    && chown -R www-data:www-data /var/www/html/data /var/www/html/upload \
     && chmod -R 775 /var/www/html/data /var/www/html/upload
 
 # ---------- Cho phép .htaccess override để mod_rewrite hoạt động ----------
